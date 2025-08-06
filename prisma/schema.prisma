@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  profile Profile?
+  bussiness Bussiness[]
+  connected_platforms ConnectedPlatform[]
+  products Product[]
+  agents Agent[]
+}
+
+model Profile{
+  id Int @id @default(autoincrement())
+  user_id Int @unique
+  avatar String?
+  user User @relation(fields: [user_id],references:[id])
+}
+
+model Bussiness{
+  id Int @id @default(autoincrement())
+  name String?
+  phone String?
+  user_id Int @unique
+  user User @relation(fields: [user_id],references :[id])
+}
+
+model Platform{
+  id Int @id @default(autoincrement())
+  name String
+  slug String? @unique
+  connected_platforms ConnectedPlatform[]
+}
+
+model ConnectedPlatform{
+  id Int @id @default(autoincrement())
+  user_id Int
+  platform_identifier String @unique
+  platform_id Int
+  is_active Boolean @default(false)
+  user User @relation(fields: [user_id], references: [id])
+  platform Platform @relation(fields: [platform_id], references: [id])
+}
+
+model Product{
+  id Int @id @default(autoincrement())
+  name String
+  price Float
+  stock Int
+  user_id Int
+  description String? @db.LongText
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user User @relation(fields: [user_id], references: [id])
+  images Image[]
+}
+
+model Image{
+  id Int @id @default(autoincrement())
+  url String
+  product_id Int
+  product Product @relation(fields: [product_id], references: [id])
+}
+
+enum AgentType {
+  customer_service
+  sales
+}
+
+model Agent{
+  id Int @id @default(autoincrement())
+  user_id Int
+  name String
+  type AgentType
+  description String?
+  prompt String? @db.LongText
+  welcome_message String? @db.LongText
+  knowledge String? @db.LongText
+  user User @relation(fields: [user_id], references: [id])
+}
