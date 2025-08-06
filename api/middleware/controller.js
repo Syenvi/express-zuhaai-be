@@ -9,12 +9,10 @@ const verifyToken = promisify(jwt.verify);
 export const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ status: false, message: "Unauthorized" });
-    }
-
-    const token = authHeader.split(" ")[1];
+    const token =
+      (authHeader && authHeader.startsWith("Bearer ")
+        ? authHeader.split(" ")[1]
+        : null) || req.cookies?.access_token;
 
     if (!token) {
       return res.status(401).json({ status: false, message: "Unauthorized" });
