@@ -84,7 +84,11 @@ export const googleAuthallback = async (req, res) => {
     const token = await jwt.sign({ name, email, picture }, secret, {
       expiresIn,
     });
-    res.cookie("access_token", token);
+    res.cookie("access_token", token, {
+      httpOnly: false,
+      secure: true,
+      sameSite: "None",
+    });
     return res.redirect(`${process.env.CLIENT_BASE_URL}`);
   } catch (error) {
     console.error("Error:", error);
